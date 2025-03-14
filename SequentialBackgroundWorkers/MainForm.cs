@@ -28,7 +28,11 @@ namespace SequentialBackgroundWorkers
                 {
                     while (!cts.Token.IsCancellationRequested)
                     { 
-                        BeginInvoke(() =>labelElapsed.Text = $@"{stopwatch.Elapsed:hh\:mm\:ss\.f}");
+                        BeginInvoke(async () =>
+                        {
+                            labelElapsed.Text = $@"{stopwatch.Elapsed:hh\:mm\:ss\.f}";
+                            await Task.Delay(TimeSpan.FromSeconds(0.1));
+                        }).AsyncWaitHandle.WaitOne();
                     }
                 }, cts.Token);
                 bool Analyze = cboAnalyzePriceList.SelectedIndex == 0;
