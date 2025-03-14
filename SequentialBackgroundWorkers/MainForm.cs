@@ -1,18 +1,23 @@
 
 using System.Diagnostics;
-using System.Reflection;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
-using System.Runtime.Intrinsics.X86;
 
 namespace SequentialBackgroundWorkers
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form, IProgress<TimeSpan>
     {
         public MainForm()
         {
             InitializeComponent();
             btnAction.Click += btnAction_Click;
+            _progress = new Progress<TimeSpan>();
+            _progress.ProgressChanged += (sender, e) =>
+            {
+                labelElapsed.Text = $@"{stopwatch.Elapsed:hh\:mm\:ss\.f}";
+                labelElapsed.Refresh();
+            };
         }
+        Progress<TimeSpan>? _progress;
+        public void Report(TimeSpan value) => ((IProgress <TimeSpan>?)_progress)?.Report(value);
 
         ComboBox cboAnalyzePriceList = new(), cboPreviewOrSave = new(); // Dummies for MRE
         Stopwatch stopwatch = new ();
@@ -27,14 +32,12 @@ namespace SequentialBackgroundWorkers
                 _ = Task.Run(() =>
                 {
                     while (!cts.Token.IsCancellationRequested)
-                    { 
-                        Invoke(async () =>
-                        {
-                            labelElapsed.Text = $@"{stopwatch.Elapsed:hh\:mm\:ss\.f}";
-                            await Task.Delay(TimeSpan.FromSeconds(0.1));
-                        });
+                    {
+                        Report(stopwatch.Elapsed);
+                        Thread.Sleep(100);
                     }
                 }, cts.Token);
+
                 bool Analyze = cboAnalyzePriceList.SelectedIndex == 0;
                 bool Preview = cboPreviewOrSave.SelectedIndex == 0;
                 // On UI Thread
@@ -72,6 +75,7 @@ namespace SequentialBackgroundWorkers
                 var importId = Guid.NewGuid().ToString().Trim(['{','}']);
                 for (int i = 0; i < 10; i++)
                 {
+                    Debug.Assert(InvokeRequired, "Ensure we're sleeping a non UI thread");
                     Thread.Sleep(TimeSpan.FromSeconds(1)); // Simulated work
                     if (token.IsCancellationRequested) return default;
                 }
@@ -81,6 +85,10 @@ namespace SequentialBackgroundWorkers
             return result;
         }
 
+        // This attempts to simulate normal UI update
+        // propagations without introducing any thread
+        // waits or sleeps that might skew the results.
+        // WHAT I AM CONFIRMING IS THAT REPORT FAILS TO UPDATE THE ELAPSED TIME.
         private void SetupProcessForm()
         {
             for (int i = 0; i < 1000000000; i++)
@@ -88,11 +96,16 @@ namespace SequentialBackgroundWorkers
                 if ((i % 10000000 == 0))
                 {
                     Text = $"Form Setup {i / 10000000:D2}";
-                    labelElapsed.Text = $@"{stopwatch.Elapsed:hh\:mm\:ss\.f}";
+                    Report(stopwatch.Elapsed);
                     Refresh();
                 }
             }
         }
+
+        // This attempts to simulate normal UI update
+        // propagations without introducing any thread
+        // waits or sleeps that might skew the results.
+        // WHAT I AM CONFIRMING IS THAT REPORT FAILS TO UPDATE THE ELAPSED TIME.
         private void FinalizeProcessForm()
         {
             for (int i = 0; i < 1000000000; i++)
@@ -100,7 +113,7 @@ namespace SequentialBackgroundWorkers
                 if ((i % 10000000 == 0))
                 {
                     Text = $"Finalize Process Form {i / 10000000:D2}";
-                    labelElapsed.Text = $@"{stopwatch.Elapsed:hh\:mm\:ss\.f}";
+                    Report(stopwatch.Elapsed);
                     Refresh();
                 }
             }
