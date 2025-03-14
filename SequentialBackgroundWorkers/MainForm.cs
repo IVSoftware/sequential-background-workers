@@ -45,6 +45,7 @@ namespace SequentialBackgroundWorkers
                 FinalizeProcessForm();
                 // (rowCnt, ImportId) = FinalizeProcessForm(result.rowCnt, result.FileMatch, result.srcAnalysis);
                 PreviewOrSave();
+                Text = "Main Form";
                 MessageBox.Show($"{resultPAB.rowCnt} {resultPAB.fileMatch} {resultPAB.importId}");
             }
             catch(OperationCanceledException)
@@ -54,7 +55,6 @@ namespace SequentialBackgroundWorkers
                 btnAction.Enabled = true;
                 labelElapsed.Visible = false;
                 stopwatch.Stop();
-                Text = "Main Form";
             }
         }
 
@@ -86,7 +86,7 @@ namespace SequentialBackgroundWorkers
             {
                 if ((i % 10000000 == 0))
                 {
-                    Text = $"Main Form Setup {i / 10000000:D2}";
+                    Text = $"Form Setup {i / 10000000:D2}";
                     labelElapsed.Text = $@"{stopwatch.Elapsed:hh\:mm\:ss\.f}";
                     Refresh();
                 }
