@@ -96,6 +96,7 @@ namespace SequentialBackgroundWorkers
                 if ((i % 10000000 == 0))
                 {
                     Text = $"Form Setup {i / 10000000:D2}";
+                    // Even calling explicitly does not update.
                     Report(stopwatch.Elapsed);
                     Refresh();
                 }
@@ -113,6 +114,7 @@ namespace SequentialBackgroundWorkers
                 if ((i % 10000000 == 0))
                 {
                     Text = $"Finalize Process Form {i / 10000000:D2}";
+                    // Even calling explicitly does not update.
                     Report(stopwatch.Elapsed);
                     Refresh();
                 }
