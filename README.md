@@ -45,6 +45,9 @@ public partial class MainForm : Form, IProgress<TimeSpan>
             {
                 while (!cts.Token.IsCancellationRequested)
                 {
+                    // THIS WORKS
+                    Debug.WriteLine(stopwatch.Elapsed); 
+                    // THIS DOESN'T
                     Report(stopwatch.Elapsed);
                     Thread.Sleep(100);
                 }

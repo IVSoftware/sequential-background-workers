@@ -33,6 +33,9 @@ namespace SequentialBackgroundWorkers
                 {
                     while (!cts.Token.IsCancellationRequested)
                     {
+                        // THIS WORKS
+                        Debug.WriteLine(stopwatch.Elapsed); 
+                        // THIS DOESN'T
                         Report(stopwatch.Elapsed);
                         Thread.Sleep(100);
                     }
