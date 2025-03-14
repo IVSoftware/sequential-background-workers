@@ -34,9 +34,10 @@ namespace SequentialBackgroundWorkers
                     while (!cts.Token.IsCancellationRequested)
                     {
                         // THIS WORKS
-                        Debug.WriteLine(stopwatch.Elapsed); 
+                        Debug.WriteLine(stopwatch.Elapsed);
                         // THIS DOESN'T
                         Report(stopwatch.Elapsed);
+
                         Thread.Sleep(100);
                     }
                 }, cts.Token);
@@ -87,22 +88,13 @@ namespace SequentialBackgroundWorkers
             });
             return result;
         }
-
-        // This attempts to simulate normal UI update
-        // propagations without introducing any thread
-        // waits or sleeps that might skew the results.
-        // WHAT I AM CONFIRMING IS THAT REPORT FAILS TO UPDATE THE ELAPSED TIME.
-        private void SetupProcessForm()
+        private async void SetupProcessForm()
         {
-            for (int i = 0; i < 1000000000; i++)
+            for (int i = 0; i < 100; i++)
             {
-                if ((i % 10000000 == 0))
-                {
-                    Text = $"Form Setup {i / 10000000:D2}";
-                    // Even calling explicitly does not update.
-                    Report(stopwatch.Elapsed);
-                    Refresh();
-                }
+                Text = $"Form Setup {i:D2}";
+                // WORKS if we force a return.
+                await Task.Delay(25);
             }
         }
 
@@ -110,17 +102,13 @@ namespace SequentialBackgroundWorkers
         // propagations without introducing any thread
         // waits or sleeps that might skew the results.
         // WHAT I AM CONFIRMING IS THAT REPORT FAILS TO UPDATE THE ELAPSED TIME.
-        private void FinalizeProcessForm()
+        private async void FinalizeProcessForm()
         {
-            for (int i = 0; i < 1000000000; i++)
+            for (int i = 0; i < 100; i++)
             {
-                if ((i % 10000000 == 0))
-                {
-                    Text = $"Finalize Process Form {i / 10000000:D2}";
-                    // Even calling explicitly does not update.
-                    Report(stopwatch.Elapsed);
-                    Refresh();
-                }
+                Text = $"Finalize Process Form {i / 10000000:D2}";
+                // WORKS if we force a return.
+                await Task.Delay(25);
             }
         }
     }
