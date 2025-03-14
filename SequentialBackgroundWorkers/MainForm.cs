@@ -41,6 +41,7 @@ namespace SequentialBackgroundWorkers
                 SetupProcessForm();
                 // On Background thread
                 var resultPAB = await ProcessActionButton(Analyze, Preview, cts.Token);
+                cts.Cancel();
                 // On UI Thread
                 FinalizeProcessForm();
                 // (rowCnt, ImportId) = FinalizeProcessForm(result.rowCnt, result.FileMatch, result.srcAnalysis);
@@ -69,7 +70,7 @@ namespace SequentialBackgroundWorkers
                 // long-running process that I want to run on the separate thread."
 
                 var importId = Guid.NewGuid().ToString().Trim(['{','}']);
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 2; i++)
                 {
                     Thread.Sleep(TimeSpan.FromSeconds(1)); // Simulated work
                     if (token.IsCancellationRequested) return default;
