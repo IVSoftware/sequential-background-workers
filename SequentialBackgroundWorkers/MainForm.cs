@@ -54,6 +54,7 @@ namespace SequentialBackgroundWorkers
                 btnAction.Enabled = true;
                 labelElapsed.Visible = false;
                 stopwatch.Stop();
+                Text = "Main Form";
             }
         }
 
